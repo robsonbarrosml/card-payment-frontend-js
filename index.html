@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Template Code - Shopping Cart</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('.showSingle').click(function(){
+              $('.targetDiv').hide();
+              $('#div'+$(this).attr('target')).show(500).fadeIn();
+        });
+
+        $('#checkout').click(function(){ 
+              $('.shopping-cart').fadeOut(500);
+              setTimeout(() => { $('.container_payment').show(500).fadeIn(); }, 500);
+              
+        });
+      });
+    </script>
+  </head>
+  <body class="body">
+    <header>
+			<div class="header">
+				<img id="horizontal_logo" src="img/horizontal_logo.png">
+			</div>
+		</header>
+    <main class="page">
+      <!-- Shopping Cart -->
+      <section class="shopping-cart dark">
+        <div class="container" id="container">
+          <div class="block-heading">
+            <h2>Shopping Cart</h2>
+            <p>This is an example of front end of Mercado Pago integration</p>
+          </div>
+            <div class="content">
+              <div class="row">
+                <div class="col-md-12 col-lg-8">
+                  <div class="items">
+                    <div class="product">
+                      <div class="row">
+                        <div class="col-md-3" id="product">
+                          <img class="img-fluid mx-auto d-block image" src="img/product.jpg">
+                        </div>
+                        <div class="col-md-8">
+                          <div class="info">
+                            <div class="row">
+                              <div class="col-md-5 product-name">
+                                <div class="product-name">
+                                  <h5>How to Win Friends and Influence People</h5>
+                                  <div class="product-info">
+                                    <div><b>Number of pages: </b><span class="value">136</span></div>
+                                    <div><b>Book Publisher: </b><span class="value">RP Minis</span></div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-md-3 quantity">
+                                <label for="quantity">quantity:</label>
+                                <input type="text" disabled="disabled" value="1" class="form-control quantity-input">
+                              </div>
+                              <div class="col-md-3 price">
+                                <span>$ 10</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 col-lg-4">
+                  <div class="summary">
+                    <h3>cart</h3>
+                    <div class="summary-item"><span class="text">Total</span><span class="price">$ 10</span></div>
+                    <button class="btn btn-primary btn-lg btn-block" id="checkout">Checkout</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </section>
+      <!-- Payment -->
+      <section class="payment-form dark">
+        <div class="container_payment">
+          <div class="block-heading">
+            <h2>Payment</h2>
+            <p>This is an example of front end of Mercado Pago integration of Transparent Payment</p>
+          </div>
+          <form action="/pagar" method="post" id="pay" name="pay" class="form-payment">
+            <div class="products">
+              <h3 class="title">Itens</h3>
+              <div class="item">
+                <span class="price">$200</span>
+                <p class="item-name">Smartphone</p>
+              </div>
+              <div class="total">Total<span class="price">$200</span></div>
+            </div>
+            <div class="card-details">
+              <h3 class="title">Credit Card Details</h3>
+              <div class="row">
+                <div class="form-group col-sm-7">
+                  <label ffor="cardholderName">Card Holder</label>
+                  <input id="cardholderName" data-checkout="cardholderName" type="text" class="form-control"
+                    placeholder="Card Holder" aria-label="Card Holder" aria-describedby="basic-addon1">
+                  <input data-checkout="docType" type="hidden" value="CPF" />
+                  <input data-checkout="siteId" type="hidden" value="MLB" />
+                  <input type="hidden" id="docNumber" data-checkout="docNumber" value="19119119100" />
+                </div>
+                <div class="form-group col-sm-5">
+                  <label for="">Expiration Date</label>
+                  <div class="input-group expiration-date">
+                    <input type="text" class="form-control" placeholder="MM" id="cardExpirationMonth"
+                      data-checkout="cardExpirationMonth">
+                    <span class="date-separator">/</span>
+                    <input type="text" class="form-control" placeholder="YY" id="cardExpirationYear"
+                      data-checkout="cardExpirationYear">
+                  </div>
+                </div>
+                <div class="form-group col-sm-8">
+                  <label for="cardNumber">Card Number</label>
+                  <input type="text" class="form-control" id="cardNumber" data-checkout="cardNumber"
+                    placeholder="4509 9535 6623 3704" value="4509 9535 6623 3704">
+                </div>
+  
+  
+                <div class="form-group col-sm-4">
+                  <label for="securityCode">CVV</label>
+                  <input id="securityCode" data-checkout="securityCode" type="text" class="form-control"
+                    placeholder="CVV">
+                </div>
+  
+                <div class="form-group col-sm-12">
+                  <label for="installments">Installments</label>
+                  <select type="text" id="installments" name="installmentsOption" class="form-control"
+                    aria-label="installments" aria-describedby="basic-addon1"></select>
+                </div>
+  
+                <div class="form-group col-sm-12">
+                  <input type="hidden" name="amount" id="amount" value="200" />
+                  <button type="submit" class="btn btn-primary btn-block">Proceed</button>
+                  
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 10 10" class="chevron-left"><path fill="#009EE3" fill-rule="nonzero" id="chevron_left" d="M7.05 1.4L6.2.552 1.756 4.997l4.449 4.448.849-.848-3.6-3.6z"></path></svg>
+                  <a href="index.html" class="go_back" >Go back to Shopping Cart</a>
+          </form>
+      </section>
+
+
+    </main>
+    <footer>
+			<img id="vertical_logo" src="img/vertical_logo.png">
+		</footer>
+  </body>
+</html>

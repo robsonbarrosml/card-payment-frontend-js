@@ -160,9 +160,8 @@ main {
     text-align: center;
   }
 }
-/* Shopping Cart Section - End */
 
-/* Payment Section - Start */
+/* Card Payment Section - Start */
 .container_payment {
   display: none;
 }
@@ -284,14 +283,19 @@ main {
   margin-top: 5px;
 }
 
-.payment-form a {
+.payment-form a, .payment-form a:not([href]) {
   margin: 0;
   padding: 0;
   font-size: 13px;
   color: #009ee3;
-  text-decoration: none;
+  cursor:pointer;
 }
-/* Payment Section - End */
+
+.payment-form a:not([href]):hover{
+  color: #3483FA;
+  cursor:pointer;
+}
+
 
 footer {
   padding: 2% 10% 6% 10%;
@@ -310,7 +314,7 @@ footer p a {
 }
 
 footer p a:hover {
-  color: #2968C8;
+  color: #3483FA;
   text-decoration: none;
 }
   

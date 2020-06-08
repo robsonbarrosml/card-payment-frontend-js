@@ -1,119 +1,110 @@
-function installmentsCharge() {
-    Mercadopago.setPublishableKey("TEST-99c6d09d-7dca-4c45-bffb-b9d69908b8be"); //INSERT YOUR PUBLIC KEY AVAILABLE IN: https://www.mercadopago.com/mlb/account/credentials
-  function addEvent(el, eventName, handler) {
-    if (el.addEventListener) {
-      el.addEventListener(eventName, handler);
-    } else {
-      el.attachEvent('on' + eventName, function () {
-        handler.call(el);
-      });
-    }
-  };
-  function getBin() {
-    var ccNumber = document.querySelector('input[data-checkout="cardNumber"]');
-    return ccNumber.value.replace(/[ .-]/g, '').slice(0, 6);
-  };
+window.Mercadopago.setPublishableKey("YOUR_PUBLIC_KEY"); //REPLACE WITH YOUR PUBLIC KEY AVAILABLE IN: https://developers.mercadopago.com/panel/credentials
+window.Mercadopago.getIdentificationTypes();
+  
+document.getElementById('cardNumber').addEventListener('keyup', guessPaymentMethod);
+document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
 
-  function guessingPaymentMethod(event) {
-    var bin = getBin();
+function guessPaymentMethod(event) {
+    let cardnumber = document.getElementById("cardNumber").value;
 
-    if (event.type == "keyup") {
-      if (bin.length >= 6) {
-        Mercadopago.getPaymentMethod({
-          "bin": bin
-        }, setPaymentMethodInfo);
-      }
-    } else {
-      setTimeout(function () {
-        if (bin.length >= 6) {
-          Mercadopago.getPaymentMethod({
+    if (cardnumber.length >= 6) {
+        let bin = cardnumber.substring(0,6);
+        window.Mercadopago.getPaymentMethod({
             "bin": bin
-          }, setPaymentMethodInfo);
-        }
-      }, 100);
+        }, setPaymentMethod);
     }
-  };
+};
 
-  function setPaymentMethodInfo(status, response) {
+function setPaymentMethod(status, response) {
     if (status == 200) {
-      var form = document.querySelector('#pay');
-
-      if (document.querySelector("input[name=paymentMethodId]") == null) {
-        var paymentMethod = document.createElement('input');
-        paymentMethod.setAttribute('name', "paymentMethodId");
-        paymentMethod.setAttribute('type', "hidden");
-        paymentMethod.setAttribute('value', response[0].id);
-        form.appendChild(paymentMethod);
-      } else {
-        document.querySelector("input[name=paymentMethodId]").value = response[0].id;
-      }
-
-      var img = "<img src='" + response[0].thumbnail + "' align='center' style='margin-left:10px;' ' >";
-      $("#bandeira").empty();
-      $("#bandeira").append(img);
-      amount = document.querySelector('#amount').value;
-      Mercadopago.getInstallments({
-        "bin": getBin(),
-        "amount": amount
-      }, setInstallmentInfo);
-
-    }
-  };
-
-  addEvent(document.querySelector('input[data-checkout="cardNumber"]'), 'keyup', guessingPaymentMethod);
-  addEvent(document.querySelector('input[data-checkout="cardNumber"]'), 'change', guessingPaymentMethod);
-
-  doSubmit = false;
-  addEvent(document.querySelector('#pay'), 'submit', doPay);
-
-  function doPay(event) {
-    event.preventDefault();
-    if (!doSubmit) {
-      var $form = document.querySelector('#pay');
-
-      Mercadopago.createToken($form, sdkResponseHandler);
-
-      return false;
-    }
-  };
-
-  function sdkResponseHandler(status, response) {
-    if (status != 200 && status != 201) {
-      alert("verify filled data");
+        let paymentMethodId = response[0].id;
+        let element = document.getElementById('paymentMethodId');
+        element.value = paymentMethodId;
+        getInstallments();
     } else {
-
-      var form = document.querySelector('#pay');
-      var card = document.createElement('input');
-      card.setAttribute('name', "token");
-      card.setAttribute('type', "hidden");
-      card.setAttribute('value', response.id);
-      form.appendChild(card);
-      doSubmit = true;
-      form.submit();
+        alert(`payment method info error: ${response}`);
     }
-  };
-  function setInstallmentInfo(status, response) {
-    var selectorInstallments = document.querySelector("#installments"),
-      fragment = document.createDocumentFragment();
-    selectorInstallments.options.length = 0;
-    if (response.length > 0) {
-      var option = new Option("Choose...", '-1'),
-        payerCosts = response[0].payer_costs;
-      fragment.appendChild(option);
-      for (var i = 0; i < payerCosts.length; i++) {
-        option = new Option(payerCosts[i].recommended_message || payerCosts[i].installments, payerCosts[i].installments);
-        fragment.appendChild(option);
-      }
-      selectorInstallments.appendChild(fragment);
-      selectorInstallments.removeAttribute('disabled');
-    }
-  };
 }
 
+function getInstallments(){
+    window.Mercadopago.getInstallments({
+        "payment_method_id": document.getElementById('paymentMethodId').value,
+        "amount": parseFloat(document.getElementById('amount').value)
+        
+    }, function (status, response) {
+        if (status == 200) {
+            document.getElementById('installments').options.length = 0;
+            response[0].payer_costs.forEach( installment => {
+                let opt = document.createElement('option');
+                opt.text = installment.recommended_message;
+                opt.value = installment.installments;
+                document.getElementById('installments').appendChild(opt);
+            });
+        } else {
+            alert(`installments method info error: ${response}`);
+        }
+    });
+}    
+
+doSubmit = false;
+document.querySelector('#pay').addEventListener('submit', doPay);
+
+function doPay(event){
+    event.preventDefault();
+    if(!doSubmit){
+        var $form = document.querySelector('#pay');
+
+        window.Mercadopago.createToken($form, sdkResponseHandler);
+
+        return false;
+    }
+};
+
+function sdkResponseHandler(status, response) {
+    if (status != 200 && status != 201) {
+        alert("verify filled data");
+    }else{
+        var form = document.querySelector('#pay');
+        var card = document.createElement('input');
+        card.setAttribute('name', 'token');
+        card.setAttribute('type', 'hidden');
+        card.setAttribute('value', response.id);
+        form.appendChild(card);
+        doSubmit=true;
+        form.submit();
+    }
+};
+
+/* checkout */
 $(document).ready(function() {
     $('#checkout').click(function(){ 
-          $('.shopping-cart').fadeOut(500);
-          setTimeout(() => { $('.container_payment').show(500).fadeIn(); }, 500);
-          
+            $('.shopping-cart').fadeOut(500);
+            setTimeout(() => { $('.container_payment').show(500).fadeIn(); }, 500);
     });
-  });
+});
+
+/* go back */
+$(document).ready(function() {
+    $('.go_back').click(function(){ 
+            $('.container_payment').fadeOut(500);
+            setTimeout(() => { $('.shopping-cart').show(500).fadeIn(); }, 500);
+    });
+});
+
+/* Price initialize */
+$(document).ready(function() {
+    $('#total-price').text('$ ' + ($('#unit-price').text() * $('#quantity').val()));
+    $('#total-payment').text('$ ' + ($('#unit-price').text() * $('#quantity').val()));
+    $('#quantity-payment').text($('#quantity').val() + 'x ');
+    $('#amount').val(($('#unit-price').text() * $('#quantity').val()));
+});
+
+/* Calculate price vs quantity */
+$(document).ready(function() {
+    $('#quantity').keyup(function(){
+        $('#total-price').text('$ ' + ($('#unit-price').text() * $('#quantity').val()));
+        $('#total-payment').text('$ ' + ($('#unit-price').text() * $('#quantity').val()));
+        $('#quantity-payment').text($('#quantity').val() + 'x ');
+        $('#amount').val(($('#unit-price').text() * $('#quantity').val()));
+    });
+});
